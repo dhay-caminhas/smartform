@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -8,13 +9,19 @@ const schema = yup.object({
   age: yup.number().positive().integer().required("Idade obrigatória")
 });
 
-export default function Form({ onAddUser }) {
+export default function Form({ onAddUser, editingUser }) {
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors }
   } = useForm({ resolver: yupResolver(schema) });
+
+  useEffect(() => {
+    if (editingUser) {
+      reset(editingUser);
+    }
+  }, [editingUser, reset]);
 
   function onSubmit(data) {
     onAddUser(data);
@@ -32,7 +39,9 @@ export default function Form({ onAddUser }) {
       <input placeholder="Idade" {...register("age")} />
       <p>{errors.age?.message}</p>
 
-      <button type="submit">Cadastrar</button>
+      <button type="submit">
+        {editingUser ? "Atualizar" : "Cadastrar"}
+      </button>
     </form>
   );
 }
